@@ -1,0 +1,11 @@
+# Your real material stays local; the repo ships templates only.
+context/*.md
+!context/*.template.md
+inputs/*.md
+!inputs/*.template.md
+outputs/*
+!outputs/.gitkeep
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
