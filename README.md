@@ -19,7 +19,7 @@ in `prompts/generate-proposal.md`, so a fresh session makes the same calls from 
 ```
 context/                     your frame and current state (you write these)
   company.template.md        mandate, workstreams, thesis, constraints     → company.md
-  research-goals.template.md hypotheses H1… tied to gaps                   → research-goals.md
+  research-goals.template.md your hypotheses H1, H2… one per gap           → research-goals.md
   now.template.md            dated current state, by proposal section      → now.md
 inputs/                      documents you drop in for a run
   brief.template.md          the ask, verbatim                             → brief.md
@@ -35,20 +35,44 @@ tests/                       unittest suite for the pre-flight (standard library
 Your real files (`context/*.md`, `inputs/*.md`, `outputs/*`) are gitignored. The repo ships
 templates only, so it's safe to share or push anywhere.
 
+## How the files connect
+
+Each step's numbering comes from the one before it, and you write all of it:
+
+1. **`gap-register.md` lists what the platform doesn't do yet**, one numbered row per gap
+   (1, 2, 2b…). Keep the numbers stable, since everything downstream points at them.
+2. **`research-goals.md` turns each gap into a hypothesis**: a claim one conversation could
+   confirm or kill, numbered H1, H2… and tagged with the gap row it comes from. For example:
+   > **H3.** Every consuming team will need a per-decision audit record before launch. *(Gap #2)*
+
+   You score each one Confirmed / Killed / Mixed / No evidence as you talk to people.
+3. **The proposal cites both.** In the "what it delivers" table, each capability lists the gap
+   rows it closes and the hypotheses behind it (`Gap 2 · H3`). A confirmed hypothesis is a
+   reason to build. One that's unscored or mixed shows up as a risk.
+
+The H-numbers mean nothing outside your own file. If you don't have hypotheses yet, write one
+per gap row you'd consider for this phase before you generate.
+
 ## Getting started
 
-1. **Copy each template** to its real name (drop `.template`) and fill it in:
+1. **Copy each template** to its real name (drop `.template`):
    ```bash
    for f in context/*.template.md inputs/*.template.md; do cp -n "$f" "${f/.template/}"; done
    ```
-2. **Fill in `context/now.md`** last, and keep it current. It's the file that changes most:
+2. **Fill them in this order:**
+   - `inputs/gap-register.md`: what the platform doesn't do yet (or drop in your existing one);
+   - `context/research-goals.md`: one hypothesis per gap, tagged with its row;
+   - `context/company.md` and `inputs/brief.md`;
+   - `inputs/competitive.md`, if you have a competitive report (optional);
+   - `context/now.md` last.
+3. **Keep `context/now.md` current.** It's the file that changes most:
    - your own observations, as bullets, under the proposal section each one feeds;
    - no quotes and no "per <name>": the proposal states them in your voice;
    - an **As of** and a **Review by** date. The command refuses to run once the review date has
      passed, so a proposal is never built on stale state.
-3. **Check:** `python3 tools/check.py phase-1`. It reports missing files, files still holding
+4. **Check:** `python3 tools/check.py phase-1`. It reports missing files, files still holding
    template placeholders, a stale `now.md`, and the output path it will use.
-4. **Generate:** open Claude Code in this folder and run `/generate-proposal phase-1`.
+5. **Generate:** open Claude Code in this folder and run `/generate-proposal phase-1`.
 
 ## How phases work
 
@@ -66,7 +90,7 @@ templates only, so it's safe to share or push anywhere.
 | File | Changes | What the proposal uses it for |
 |---|---|---|
 | `company.md` | rarely | framing; its constraints are hard rules |
-| `research-goals.md` | per round | the H-numbers each capability closes; risks |
+| `research-goals.md` | per round | the hypotheses (H-numbers) behind each capability; unconfirmed ones become risks |
 | `gap-register.md` | as gaps close | the candidate scope |
 | `now.md` | weekly | every fact about teams, consumers, dates, capacity and decisions |
 | `brief.md` | per proposal | the structure and the questions to answer |
